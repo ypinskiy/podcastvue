@@ -1,22 +1,28 @@
 {
-  "name": "podcastvue",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
-  },
-  "dependencies": {
-    "firebase": "^5.5.0",
-    "register-service-worker": "^1.0.0",
-    "vue": "^2.5.17",
-    "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.3",
-    "@vue/cli-plugin-pwa": "^3.0.3",
-    "@vue/cli-service": "^3.0.3",
-    "vue-template-compiler": "^2.5.17"
-  }
+	"name": "podcastvue",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"serve": "vue-cli-service serve --port 80",
+		"build": "vue-cli-service build"
+	},
+	"dependencies": {
+		"amplitudejs": "^3.3.1",
+		"axios": "^0.18.0",
+		"body-parser": "^1.18.3",
+		"compression": "^1.7.3",
+		"express": "^4.16.3",
+		"firebase": "^5.5.0",
+		"helmet": "^3.13.0",
+		"register-service-worker": "^1.0.0",
+		"vue": "^2.5.17",
+		"vue-router": "^3.0.1",
+		"vuex": "^3.0.1"
+	},
+	"devDependencies": {
+		"@vue/cli-plugin-babel": "^3.0.3",
+		"@vue/cli-plugin-pwa": "^3.0.3",
+		"@vue/cli-service": "^3.0.3",
+		"vue-template-compiler": "^2.5.17"
+	}
 }
