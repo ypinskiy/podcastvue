@@ -3,6 +3,7 @@ const bodyParser = require( 'body-parser' );
 const compression = require( 'compression' );
 const axios = require( "axios" );
 const helmet = require( 'helmet' );
+require('dotenv').config();
 
 const port = process.env.PORT || 8080;
 let app = express();

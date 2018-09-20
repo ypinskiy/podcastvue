@@ -2,7 +2,7 @@ import firebase from 'firebase'
 import 'firebase/firestore'
 
 const config = {
-	apiKey: "AIzaSyABig3e-vwIBWDjCYRtSZ2dvnTO59MqbZk",
+	apiKey: process.env.apiKey,
 	authDomain: "podcastvue.firebaseapp.com",
 	databaseURL: "https://podcastvue.firebaseio.com",
 	projectId: "podcastvue",
