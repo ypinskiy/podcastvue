@@ -25,6 +25,7 @@
 
 <script>
 import axios from 'axios'
+import amplitude from 'amplitudejs'
 export default {
 	name: 'Channel',
 	props: ["channel"],
@@ -137,7 +138,6 @@ a.info:visited, a.info:active, a.info:link {
 }
 
 #episode-container {
-	min-height: calc(40vh - 50px);
 	display: grid;
 	width: 100vw;
 	box-sizing: border-box;
@@ -146,5 +146,23 @@ a.info:visited, a.info:active, a.info:link {
 	grid-auto-rows: max-content;
 	justify-content: space-between;
 	background-color: lightgray;
+}
+
+@media (max-width: 360px) {
+	.channel-info {
+		height: 82vh;
+	}
+	#podcast-title {
+		font-size: 1.5rem;
+	}
+	#podcast-desc {
+		font-size: 1rem;
+	}
+	.info-box {
+		font-size: 0.75rem;
+	}
+	.loading {
+		font-size: 2rem;
+	}
 }
 </style>

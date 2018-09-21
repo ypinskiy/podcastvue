@@ -16,7 +16,6 @@ let router = new Router( {
 			name: 'home',
 			component: Home
 		},
-
 		// {
 		// 	path: '/login',
 		// 	name: 'login',

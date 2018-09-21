@@ -3,7 +3,6 @@ const bodyParser = require( 'body-parser' );
 const compression = require( 'compression' );
 const axios = require( "axios" );
 const helmet = require( 'helmet' );
-require('dotenv').config();
 
 const port = process.env.PORT || 8080;
 let app = express();
@@ -86,6 +85,7 @@ function BuildPodcastJson( xmlText ) {
 			podcastItem.duration = /<itunes:duration>([\s\S]*?)<\/itunes:duration>/gim.exec( item )[ 1 ];
 		}
 		podcastItem.cover = /<itunes:image href="([\s\S]*?)" \/>/gim.exec( item )[ 1 ];
+		podcastItem.guid = /<guid isPermalink="false">([\s\S]*?)<\/guid>/gim.exec( item )[ 1 ];
 		podcastItem.media = {};
 		let mediaSplit = [];
 		let mediaNoSpaceSplitter = /<enclosure url="([\s\S]*?)" length="([\s\S]*?)" type="([\s\S]*?)"\/>/gim;
