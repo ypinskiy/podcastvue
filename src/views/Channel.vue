@@ -25,7 +25,7 @@
 					<div class="ep-title">{{ episode.title }}</div>
 					<div class="ep-date">{{ episode.date }}</div>
 				</div>
-				<div class="amplitude-play-pause amplitude-paused" :amplitude-song-index="index" @click="playSong"></div>
+				<div class="amplitude-play-pause amplitude-paused" :amplitude-song-index="index" @click="displayProgress"></div>
 				<div class="progress-bar-container tech-hidden" @click="setProgress">
 					<progress class="amplitude-song-played-progress" :amplitude-song-index="index"></progress>
 					<progress class="amplitude-buffered-progress" :amplitude-song-index="index"></progress>
@@ -63,11 +63,17 @@ export default {
 			globalError: null
 		}
 	},
-	created: function() {
+	mounted: function() {
 		this.fetchData();
 	},
 	watch: {
-		'$route': 'fetchData'
+		'$route': 'fetchData',
+		podcast: function (val, oldVal) {
+			console.log("Vue saw that podcast changed.", val, oldVal);
+			if (this.podcast != null && this.globalError == null && this.loading == false) {
+				this.InitAmplitude(this.podcast);
+			}
+		}
 	},
 	methods: {
 		InitAmplitude: function(podcastJson) {
@@ -90,11 +96,7 @@ export default {
 			let x = event.pageX - offset.left;
 			Amplitude.setSongPlayedPercentage((parseFloat(x) / parseFloat(event.target.offsetWidth)) * 100);
 		},
-		playSong: function(event) {
-			let wasHidden = false;
-			if (event.target.parentNode.getElementsByClassName("time-container")[0].classList.contains("tech-hidden")) {
-				wasHidden = true;
-			}
+		displayProgress: function(event) {
 			let progressBars = document.getElementsByClassName("progress-bar-container");
 			for (let i = 0; i < progressBars.length; i++) {
 				progressBars[i].classList.add("tech-hidden");
@@ -109,26 +111,11 @@ export default {
 			}
 			event.target.parentNode.getElementsByClassName("time-container")[0].classList.remove("tech-hidden");
 			event.target.parentNode.getElementsByClassName("progress-bar-container")[0].classList.remove("tech-hidden");
-			if (wasHidden) {
-				Amplitude.pause();
-				Amplitude.playSongAtIndex(event.target.attributes[0].value);
-				event.target.classList.add("amplitude-playing");
-				event.target.classList.remove("amplitude-paused");
-			} else {
-				if (event.target.classList.contains("amplitude-paused")) {
-					Amplitude.play();
-					event.target.classList.add("amplitude-playing");
-					event.target.classList.remove("amplitude-paused");
-				} else if (event.target.classList.contains("amplitude-playing")) {
-					Amplitude.pause();
-					event.target.classList.remove("amplitude-playing");
-					event.target.classList.add("amplitude-paused");
-				}
-			}
 		},
 		fetchData: function() {
 			let InitAmplitude = this.InitAmplitude;
 			let data = this.$data;
+			let nextTick = this.$nextTick;
 			data.globalError = data.podcast = null;
 			data.loading = true;
 			fetch(window.location.protocol + "//" + window.location.hostname + ":8080/convertPodcastURL", {
@@ -145,7 +132,10 @@ export default {
 				.then(function(response) {
 					data.podcast = response;
 					data.loading = false;
-					InitAmplitude(response);
+					nextTick(function () {
+						console.log("Vue ticked after fetch finished");
+						InitAmplitude(data.podcast);
+					});
 					console.log(data.podcast);
 				})
 				.catch(function(error) {
@@ -339,6 +329,7 @@ div.progress-bar-container progress.amplitude-song-played-progress {
 	border: none;
 	cursor: pointer;
 	background: transparent;
+	border-radius: 5px 0px 0px 5px;
 }
 
 .progress-bar-container progress.amplitude-song-played-progress[value]::-webkit-progress-bar {
@@ -368,6 +359,7 @@ div.progress-bar-container progress.amplitude-song-played-progress {
 	z-index: 2;
 	border: none;
 	background: transparent;
+	border-radius: 5px 0px 0px 5px;
 }
 
 .tech-hidden {
