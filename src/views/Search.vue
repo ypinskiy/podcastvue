@@ -89,8 +89,8 @@ export default {
 }
 
 .search-body {
-	width: 80vw;
-	margin-left: 10vw;
+	width: 80%;
+	margin-left: 10%;
 }
 
 .search-results-table {
@@ -159,7 +159,7 @@ export default {
 
 @media (max-width: 360px) {
 	.search-body {
-		width: 100vw;
+		width: 100%;
 		margin: 0;
 	}
 	thead, tr, tbody, td, th {

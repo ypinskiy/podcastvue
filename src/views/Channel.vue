@@ -3,19 +3,47 @@
 	<div class="loading" v-if="loading">
 		Loading...
 	</div>
-	<div v-else class="channel">
+	<div v-if="podcast" class="channel">
 		<div class="channel-info">
-			<img id="podcast-img" :src="podcast.channel.image"></img>
-			<span id="podcast-title">{{podcast.channel.title}}</span>
-			<span id="podcast-desc">{{podcast.channel.description}}</span>
+			<img id="podcast-img" :src="podcast.channel.image">
+			<span id="podcast-title">{{ podcast.channel.title }}</span>
+			<span id="podcast-desc">{{ podcast.channel.description }}</span>
 			<div class="info-box">
-				<a id="podcast-email" :href="podcast.channel.email" class="info">{{podcast.channel.email}}</a>
-				<a id="podcast-link" :href="podcast.channel.link" class="info">{{podcast.channel.link}}</a>
-				<span id="podcast-copyright" class="info">Copyright: {{podcast.channel.copyright}}</span>
-				<span id="podcast-episode-num" class="info">{{podcast.episodes.length}} episodes</span>
+				<a id="podcast-email" :href="podcast.channel.email" class="info">{{ podcast.channel.email }}</a>
+				<a id="podcast-link" :href="podcast.channel.link" class="info">{{ podcast.channel.link }}</a>
+				<span id="podcast-copyright" class="info">Copyright: {{ podcast.channel.copyright }}</span>
+				<span id="podcast-episode-num" class="info">{{ podcast.episodes.length }} episodes</span>
 			</div>
 		</div>
-		<div id="episode-container"></div>
+		<div id="episode-container">
+			<div v-for="(episode, index) in podcast.episodes" :key="episode.guid" class="episode">
+				<div class="ep-hero">
+					<img class="ep-cover" :src="episode.cover">
+					<div class="ep-desc" v-html="episode.description"></div>
+				</div>
+				<div class="ep-header">
+					<div class="ep-title">{{ episode.title }}</div>
+					<div class="ep-date">{{ episode.date }}</div>
+				</div>
+				<div class="amplitude-play-pause amplitude-paused" :amplitude-song-index="index" @click="playSong"></div>
+				<div class="progress-bar-container tech-hidden" @click="setProgress">
+					<progress class="amplitude-song-played-progress" :amplitude-song-index="index"></progress>
+					<progress class="amplitude-buffered-progress" :amplitude-song-index="index"></progress>
+				</div>
+				<div class="time-container tech-hidden">
+					<div class="current-time-container">
+						<span class="amplitude-current-hours" :amplitude-song-index="index"></span>
+						<span class="amplitude-current-minutes" :amplitude-song-index="index"></span>
+						<span class="amplitude-current-seconds" :amplitude-song-index="index"></span>
+					</div>
+					<div class="duration-time-container">
+						<span class="amplitude-duration-hours" :amplitude-song-index="index"></span>
+						<span class="amplitude-duration-minutes" :amplitude-song-index="index"></span>
+						<span class="amplitude-duration-seconds" :amplitude-song-index="index"></span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div v-if="globalError" class="error">
 		{{ globalError }}
@@ -24,8 +52,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-import amplitude from 'amplitudejs'
+import * as Amplitude from 'amplitudejs'
 export default {
 	name: 'Channel',
 	props: ["channel"],
@@ -43,7 +70,64 @@ export default {
 		'$route': 'fetchData'
 	},
 	methods: {
+		InitAmplitude: function(podcastJson) {
+			let playlist = {
+				songs: [],
+				default_album_art: podcastJson.channel.image
+			};
+			podcastJson.episodes.forEach(function(episode) {
+				let playlistEntry = {};
+				playlistEntry.name = episode.title;
+				playlistEntry.artist = podcastJson.channel.title;
+				playlistEntry.url = episode.media.url;
+				playlistEntry.cover_art_url = episode.cover;
+				playlist.songs.push(playlistEntry);
+			});
+			Amplitude.init(playlist);
+		},
+		setProgress: function(event) {
+			let offset = event.target.getBoundingClientRect();
+			let x = event.pageX - offset.left;
+			Amplitude.setSongPlayedPercentage((parseFloat(x) / parseFloat(event.target.offsetWidth)) * 100);
+		},
+		playSong: function(event) {
+			let wasHidden = false;
+			if (event.target.parentNode.getElementsByClassName("time-container")[0].classList.contains("tech-hidden")) {
+				wasHidden = true;
+			}
+			let progressBars = document.getElementsByClassName("progress-bar-container");
+			for (let i = 0; i < progressBars.length; i++) {
+				progressBars[i].classList.add("tech-hidden");
+			}
+			let timeContainers = document.getElementsByClassName("time-container");
+			for (let i = 0; i < timeContainers.length; i++) {
+				timeContainers[i].classList.add("tech-hidden");
+			}
+			let volumeSliders = document.getElementsByClassName("volume-container");
+			for (let i = 0; i < volumeSliders.length; i++) {
+				volumeSliders[i].classList.add("tech-hidden");
+			}
+			event.target.parentNode.getElementsByClassName("time-container")[0].classList.remove("tech-hidden");
+			event.target.parentNode.getElementsByClassName("progress-bar-container")[0].classList.remove("tech-hidden");
+			if (wasHidden) {
+				Amplitude.pause();
+				Amplitude.playSongAtIndex(event.target.attributes[0].value);
+				event.target.classList.add("amplitude-playing");
+				event.target.classList.remove("amplitude-paused");
+			} else {
+				if (event.target.classList.contains("amplitude-paused")) {
+					Amplitude.play();
+					event.target.classList.add("amplitude-playing");
+					event.target.classList.remove("amplitude-paused");
+				} else if (event.target.classList.contains("amplitude-playing")) {
+					Amplitude.pause();
+					event.target.classList.remove("amplitude-playing");
+					event.target.classList.add("amplitude-paused");
+				}
+			}
+		},
 		fetchData: function() {
+			let InitAmplitude = this.InitAmplitude;
 			let data = this.$data;
 			data.globalError = data.podcast = null;
 			data.loading = true;
@@ -61,9 +145,12 @@ export default {
 				.then(function(response) {
 					data.podcast = response;
 					data.loading = false;
+					InitAmplitude(response);
 					console.log(data.podcast);
 				})
 				.catch(function(error) {
+					data.podcast = null;
+					data.loading = false;
 					data.globalError = error;
 					console.log(error);
 				});
@@ -91,7 +178,7 @@ export default {
 
 .channel-info {
 	background-color: black;
-	width: 100vw;
+	width: 100%;
 	height: 60vh;
 	display: flex;
 	flex-direction: column;
@@ -132,15 +219,18 @@ export default {
 	align-content: space-around;
 }
 
-a.info:visited, a.info:active, a.info:link {
+a.info:visited,
+a.info:active,
+a.info:link {
 	color: grey;
 	text-decoration: underline;
 }
 
 #episode-container {
-	display: grid;
-	width: 100vw;
 	box-sizing: border-box;
+	padding: 10px;
+	display: grid;
+	width: 100%;
 	grid-gap: 15px;
 	grid-template-columns: repeat(auto-fill, 350px);
 	grid-auto-rows: max-content;
@@ -148,21 +238,199 @@ a.info:visited, a.info:active, a.info:link {
 	background-color: lightgray;
 }
 
+.episode {
+	width: 350px;
+	border-radius: 5px;
+	border: 1px solid black;
+	background-color: white;
+}
+
+.ep-hero {
+	position: relative;
+	height: 350px;
+	width: 350px;
+}
+
+.ep-hero:hover .ep-cover {
+	opacity: 0.3;
+	filter: blur(4px);
+}
+
+.ep-hero:hover .ep-desc {
+	opacity: 1;
+}
+
+.ep-cover {
+	transition: opacity 0.5s ease;
+	border-radius: 5px;
+	height: 350px;
+	width: 350px;
+	object-fit: cover;
+	position: absolute;
+}
+
+.ep-desc {
+	opacity: 0;
+	transition: opacity 0.5s ease;
+	position: absolute;
+	height: 350px;
+	width: 350px;
+	padding: 10px;
+	overflow: hidden;
+	z-index: 5;
+	box-sizing: border-box;
+}
+
+.ep-header {
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+	justify-content: center;
+	text-align: center;
+	padding: 5px;
+}
+
+.ep-title {
+	font-weight: bold;
+	font-size: 1.5rem;
+}
+
+.episode .amplitude-play-pause {
+	margin-left: calc((350px / 2) - 30px);
+	background-color: black;
+	height: 60px;
+	width: 60px;
+	cursor: pointer;
+}
+
+.episode .amplitude-play-pause.amplitude-paused {
+	-webkit-mask-image: url("/svg/play.svg");
+	mask-image: url("/svg/play.svg");
+}
+
+.episode .amplitude-play-pause.amplitude-playing {
+	-webkit-mask-image: url("/svg/pause.svg");
+	mask-image: url("/svg/pause.svg");
+}
+
+div.progress-bar-container {
+	width: calc(100% - 11px);
+	height: 4px;
+	background-color: #000;
+	position: relative;
+	border: 1px solid black;
+	border-radius: 5px;
+	margin: 5px;
+}
+
+div.progress-bar-container progress.amplitude-song-played-progress {
+	width: 100%;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	height: 4px;
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 9;
+	border: none;
+	cursor: pointer;
+	background: transparent;
+}
+
+.progress-bar-container progress.amplitude-song-played-progress[value]::-webkit-progress-bar {
+	background: none;
+}
+
+.progress-bar-container progress.amplitude-song-played-progress[value]::-webkit-progress-value {
+	background: white;
+}
+
+.progress-bar-container progress.amplitude-song-played-progress[value]::-moz-progress-bar {
+	background: white;
+}
+
+.progress-bar-container progress.amplitude-buffered-progress {
+	width: 100%;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	height: 4px;
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 2;
+	border: none;
+	background: transparent;
+}
+
+.tech-hidden {
+	opacity: 0 !important;
+	user-select: none !important;
+	pointer-events: none !important;
+}
+
+.progress-bar-container progress.amplitude-buffered-progress[value]::-webkit-progress-bar {
+	background: none;
+}
+
+.player-progress-bar-container progress.amplitude-buffered-progress[value]::-webkit-progress-value {
+	background-color: rgba(255, 255, 255, 0.5);
+	transition: width 0.1s ease;
+}
+
+.player-progress-bar-container progress.amplitude-buffered-progress[value]::-moz-progress-bar {
+	background: rgba(255, 255, 255, 0.5);
+}
+
+span.amplitude-current-hours:after,
+span.amplitude-current-minutes:after,
+span.amplitude-duration-hours:after,
+span.amplitude-duration-minutes:after {
+	content: ":";
+}
+
+.time-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding-left: 5px;
+	padding-right: 5px;
+	margin-bottom: 5px;
+}
+
 @media (max-width: 360px) {
 	.channel-info {
 		height: 82vh;
 	}
+
 	#podcast-title {
 		font-size: 1.5rem;
 	}
+
 	#podcast-desc {
 		font-size: 1rem;
 	}
+
 	.info-box {
 		font-size: 0.75rem;
 	}
+
 	.loading {
 		font-size: 2rem;
+	}
+
+	#episode-container {
+		grid-template-columns: 1fr;
+		justify-content: center;
+		align-content: center;
 	}
 }
 </style>
