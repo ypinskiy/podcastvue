@@ -1,8 +1,12 @@
 <template>
 <div id="nav" v-if="currentUser">
-	<div class="nav-email">{{ currentUser.email }}</div>
+	<div class="info-box" v-if="currentUser.photoURL">
+		<img :src="currentUser.photoURL" class="profile-pic">
+		<div class="nav-info">{{ currentUser.displayName }}</div>
+	</div>
+	<div class="nav-info" v-else>{{ currentUser.email }}</div>
 	<div class="banner" @click='goHome'>Podcast Vue</div>
-	<button class="nav-item">Sign Out</button>
+	<button class="nav-item" @click="signOut">Sign Out</button>
 </div>
 <div id="nav" v-else>
 	<div class="nav-item" @click='goLogin'>Login</div>
@@ -12,13 +16,13 @@
 </template>
 
 <script>
-import firebase from '@/firebaseConfig.js'
+import firebase from 'firebase'
 
 export default {
 	name: 'Navbar',
-	data: function() {
+	data: function () {
 		return {
-			currentUser: firebase.auth.currentUser
+			currentUser: firebase.auth().currentUser
 		}
 	},
 	methods: {
@@ -32,8 +36,11 @@ export default {
 			this.$router.push("signup");
 		},
 		signOut: function() {
-			firebase.auth.signOut().then(function() {
-				this.$router.push("home");
+			let router = this.$router;
+			console.log("Signing out...");
+			this.currentUser = null;
+			firebase.auth().signOut().then(function() {
+				router.push("home");
 			});
 		}
 	}
@@ -54,7 +61,24 @@ export default {
 	font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
+.info-box {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: fit-content;
+	margin-right: -100px;
+}
+
+.profile-pic {
+	border-radius: 50%;
+	height: 40px;
+	width: 40px;
+	object-fit: contain;
+	margin-right: 5px;
+}
+
 .nav-item {
+	background-color: black;
 	height: 25px;
 	display: inline-block;
 	padding: 5px;
@@ -74,6 +98,11 @@ export default {
 	user-select: none;
 }
 
+.nav-info {
+	font-weight: bold;
+	color: white;
+}
+
 .banner {
 	font-size: 3em;
 	color: white;
@@ -89,6 +118,7 @@ export default {
 	.banner {
 		font-size: 2em;
 	}
+
 	.nav-item {
 		font-size: 0.75em;
 		width: 50px;

@@ -5,6 +5,8 @@ import firebase from 'firebase'
 import Home from './views/Home.vue'
 import Search from './views/Search.vue'
 import Channel from './views/Channel.vue'
+import Login from './views/Login.vue'
+import Signup from './views/Signup.vue'
 
 Vue.use( Router )
 
@@ -16,16 +18,16 @@ let router = new Router( {
 			name: 'home',
 			component: Home
 		},
-		// {
-		// 	path: '/login',
-		// 	name: 'login',
-		// 	component: Login
-		// },
-		// {
-		// 	path: '/signup',
-		// 	name: 'signup',
-		// 	component: Signup
-		// },
+		{
+			path: '/login',
+			name: 'login',
+			component: Login
+		},
+		{
+			path: '/signup',
+			name: 'signup',
+			component: Signup
+		},
 		{
 			path: '/search',
 			name: 'search',
