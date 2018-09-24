@@ -1,5 +1,5 @@
 <template>
-<div id="nav" v-if="currentUser">
+<div class="navbar" v-if="currentUser">
 	<div class="info-box" v-if="currentUser.photoURL">
 		<img :src="currentUser.photoURL" class="profile-pic">
 		<div class="nav-info">{{ currentUser.displayName }}</div>
@@ -8,10 +8,10 @@
 	<div class="banner" @click='goHome'>Podcast Vue</div>
 	<button class="nav-item" @click="signOut">Sign Out</button>
 </div>
-<div id="nav" v-else>
-	<div class="nav-item" @click='goLogin'>Login</div>
+<div class="navbar" v-else>
+	<div class="empty"></div>
 	<div class="banner" @click='goHome'>Podcast Vue</div>
-	<div class="nav-item" @click='goSignup'>Sign Up</div>
+	<div class="nav-item" @click='goLogin'>Log In</div>
 </div>
 </template>
 
@@ -20,9 +20,9 @@ import firebase from 'firebase'
 
 export default {
 	name: 'Navbar',
-	data: function () {
-		return {
-			currentUser: firebase.auth().currentUser
+	computed: {
+		currentUser() {
+			return this.$store.getters.getUser;
 		}
 	},
 	methods: {
@@ -32,14 +32,12 @@ export default {
 		goLogin: function() {
 			this.$router.push("login");
 		},
-		goSignup: function() {
-			this.$router.push("signup");
-		},
 		signOut: function() {
 			let router = this.$router;
+			let store = this.$store;
 			console.log("Signing out...");
-			this.currentUser = null;
 			firebase.auth().signOut().then(function() {
+				store.dispatch("setUserFromFirebaseAction")
 				router.push("home");
 			});
 		}
@@ -48,15 +46,16 @@ export default {
 </script>
 
 <style scoped>
-#nav {
+.navbar {
 	height: 50px;
 	width: 100%;
 	padding: 5px;
-	display: flex;
-	flex-direction: row;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 40px;
 	background-color: #2c2f34;
 	align-items: center;
-	justify-content: space-around;
+	justify-items: center;
 	box-sizing: border-box;
 	font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
@@ -74,7 +73,7 @@ export default {
 	height: 40px;
 	width: 40px;
 	object-fit: contain;
-	margin-right: 5px;
+	margin-right: 10px;
 }
 
 .nav-item {
@@ -90,8 +89,8 @@ export default {
 	text-decoration: unset;
 	color: white;
 	cursor: pointer;
-	width: 75px;
 	text-align: center;
+	width: fit-content;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -104,7 +103,7 @@ export default {
 }
 
 .banner {
-	font-size: 3em;
+	font-size: 2.75em;
 	color: white;
 	cursor: pointer;
 	-webkit-user-select: none;
@@ -112,16 +111,17 @@ export default {
 	-ms-user-select: none;
 	user-select: none;
 	vertical-align: center;
+	text-align: center;
 }
 
 @media (max-width: 360px) {
 	.banner {
-		font-size: 2em;
+		font-size: 1.25em;
+		font-weight: bold;
 	}
 
 	.nav-item {
 		font-size: 0.75em;
-		width: 50px;
 	}
 }
 </style>

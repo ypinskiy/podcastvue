@@ -1,5 +1,5 @@
 <template>
-<div id="channel">
+<div class="channel-page">
 	<div class="loading" v-if="loading">
 		Loading...
 	</div>
@@ -104,10 +104,6 @@ export default {
 			let timeContainers = document.getElementsByClassName("time-container");
 			for (let i = 0; i < timeContainers.length; i++) {
 				timeContainers[i].classList.add("tech-hidden");
-			}
-			let volumeSliders = document.getElementsByClassName("volume-container");
-			for (let i = 0; i < volumeSliders.length; i++) {
-				volumeSliders[i].classList.add("tech-hidden");
 			}
 			event.target.parentNode.getElementsByClassName("time-container")[0].classList.remove("tech-hidden");
 			event.target.parentNode.getElementsByClassName("progress-bar-container")[0].classList.remove("tech-hidden");

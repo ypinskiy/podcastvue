@@ -1,5 +1,5 @@
 <template>
-<div class="home">
+<div class="home-page">
 	<h1>Welcome to Podcast Vue!</h1>
 	<h3>This is a web app made with Vue.js. Listen and subscribe to any podcast you want!</h3>
 	<input type="text" @keyup.enter="search" placeholder="Search for a podcast...">
@@ -35,7 +35,7 @@ export default {
 </script>
 
 <style>
-.home {
+.home-page {
 	text-align: center;
 	width: 60vw;
 	margin-left: 20vw;
@@ -47,7 +47,7 @@ export default {
 	font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
-.home>input {
+.home-page>input {
 	margin: 0;
 	max-width: 100%;
 	-webkit-box-flex: 1;
@@ -71,7 +71,7 @@ export default {
 	box-shadow: none;
 }
 
-.home>input:focus {
+.home-page>input:focus {
 	border-color: #85b7d9;
 	background: #fff;
 	color: rgba(0, 0, 0, .8);
@@ -121,7 +121,7 @@ box-sizing: inherit;
 }
 
 @media (max-width: 360px) {
-	.home {
+	.home-page {
 		width: 90vw;
 		margin-left: 5vw;
 	}

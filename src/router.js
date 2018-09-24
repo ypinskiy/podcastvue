@@ -1,12 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import firebase from 'firebase'
+import store from './store'
 
 import Home from './views/Home.vue'
 import Search from './views/Search.vue'
 import Channel from './views/Channel.vue'
 import Login from './views/Login.vue'
-import Signup from './views/Signup.vue'
 
 Vue.use( Router )
 
@@ -22,11 +21,6 @@ let router = new Router( {
 			path: '/login',
 			name: 'login',
 			component: Login
-		},
-		{
-			path: '/signup',
-			name: 'signup',
-			component: Signup
 		},
 		{
 			path: '/search',
@@ -47,7 +41,7 @@ let router = new Router( {
 
 router.beforeEach( ( to, from, next ) => {
 	const requiresAuth = to.matched.some( x => x.meta.requiresAuth )
-	const currentUser = firebase.auth().currentUser
+	const currentUser = store.getters.getUser;
 
 	if ( requiresAuth && !currentUser ) {
 		next( '/login' )

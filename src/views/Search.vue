@@ -1,5 +1,5 @@
 <template>
-<div id="search">
+<div class="search-page">
 	<div v-if="loading" class="loading">
 		Loading...
 	</div>
