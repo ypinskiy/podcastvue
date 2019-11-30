@@ -1,6 +1,6 @@
 <template>
 <div class="text-base search-container">
-	<form @submit.prevent="searchPodcasts" class="mb-6 search-form">
+	<form @submit.prevent="SearchPodcasts" class="mb-6 search-form">
 		<label>Search for a podcast here:</label>
 		<input type="text" v-model="searchTerms" placeholder="Search for a podcast here..." class="w-64 ml-6 rounded-lg focus:rounded-lg border-gray-500 p-2 bg-gray-200 focus:bg-white search-input" />
 	</form>
@@ -13,7 +13,7 @@
 			<div class="mb-2 flex flex-row flex-wrap justify-around genres">
 				<span class="text-sm text-gray-500 genre" v-for="genre in result.genres" :key="genre">{{genre}}</span>
 			</div>
-			<button class="shadow-md rounded-lg p-2 my-0 mx-auto text-white bg-blue-500 hover:bg-blue-700 channel-btn" @click.prevent="switchToChannel(result.feedUrl)">View Episodes</button>
+			<button class="shadow-md rounded-lg p-2 my-0 mx-auto text-white bg-blue-500 hover:bg-blue-700 channel-btn" @click.prevent="SwitchToChannel(result.feedUrl)">View Episodes</button>
 		</div>
 	</div>
 	<div class="no-result" v-if="noResults && !loading">
@@ -31,7 +31,7 @@ export default {
 		let loading = ref( false );
 		let noResults = ref( false );
 		let results = ref( [] );
-		const searchPodcasts = async () => {
+		const SearchPodcasts = async () => {
 			loading.value = true;
 			let response = await fetch( API_URL + encodeURI( searchTerms.value ) );
 			let json = await response.json();
@@ -46,7 +46,7 @@ export default {
 				loading.value = false;
 			}, 1000 );
 		};
-		const switchToChannel = ( channel ) => {
+		const SwitchToChannel = ( channel ) => {
 			context.root.$router.push( {
 				path: 'channel',
 				query: {
@@ -59,8 +59,8 @@ export default {
 			loading,
 			noResults,
 			results,
-			searchPodcasts,
-			switchToChannel
+			SearchPodcasts,
+			SwitchToChannel
 		};
 	}
 };

@@ -32,11 +32,11 @@ app.post( '/convertPodcastURL', function ( req, res ) {
 			try {
 				res.json( BuildPodcastJson( response.data ) );
 			} catch ( err ) {
-				console.log( err );
+				// console.log( err );
 			}
 		} )
 		.catch( function ( error ) {
-			console.log( error );
+			// console.log( error );
 		} );
 } );
 
@@ -44,7 +44,7 @@ function StripCDATA( text ) {
 	if ( /CDATA/gim.test( text ) ) {
 		let newText = text;
 		newText = newText.trim();
-		newText = newText.slice( 9, newText - 3 );
+		newText = newText.slice( 9, newText.length - 3 );
 		return newText;
 	} else {
 		return text;
@@ -147,4 +147,4 @@ function BuildPodcastJson( xmlText ) {
 	return podcast;
 }
 
-console.log( "Starting podcast api server..." );
+// console.log( "Starting podcast api server..." );
