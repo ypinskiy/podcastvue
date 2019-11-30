@@ -4,7 +4,7 @@
 		<label>Search for a podcast here:</label>
 		<input type="text" v-model="searchTerms" placeholder="Search for a podcast here..." class="w-64 ml-6 rounded-lg focus:rounded-lg border-gray-500 p-2 bg-gray-200 focus:bg-white search-input" />
 	</form>
-	<img v-if="loading" class="my-0 mx-auto loading" src="https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif" />
+	<img v-if="loading" class="mx-auto loading" src="https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif" />
 	<div v-if="!loading" class="flex flex-row flex-wrap justify-between results">
 		<div v-for="result in results" :key="result.collectionId" class="flex flex-col justify-between text-center border border-solid border-gray-500 mb-8 p-2 rounded-lg bg-white shadow-lg w-64 result">
 			<img class="result-img" :src="result.artworkUrl600" />
@@ -23,47 +23,33 @@
 </template>
 
 <script>
-import
-{
-	ref
-}
-from '@vue/composition-api';
+import { ref } from '@vue/composition-api';
 const API_URL = 'https://itunes.apple.com/search?entity=podcast&media=podcast&term=';
-export default
-{
-	setup( props, context )
-	{
+export default {
+	setup( props, context ) {
 		let searchTerms = ref( '' );
 		let loading = ref( false );
 		let noResults = ref( false );
 		let results = ref( [] );
-		const searchPodcasts = async () =>
-		{
+		const searchPodcasts = async () => {
 			loading.value = true;
 			let response = await fetch( API_URL + encodeURI( searchTerms.value ) );
 			let json = await response.json();
 			results.value = json.results;
 			console.log( json.results );
-			if ( json.results.length === 0 )
-			{
+			if ( json.results.length === 0 ) {
 				noResults.value = true;
-			}
-			else
-			{
+			} else {
 				noResults.value = false;
 			}
-			setTimeout( () =>
-			{
+			setTimeout( () => {
 				loading.value = false;
 			}, 1000 );
 		};
-		const switchToChannel = ( channel ) =>
-		{
-			context.root.$router.push(
-			{
+		const switchToChannel = ( channel ) => {
+			context.root.$router.push( {
 				path: 'channel',
-				query:
-				{
+				query: {
 					channel: channel
 				}
 			} )
