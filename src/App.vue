@@ -1,22 +1,17 @@
 <template>
 <div id="app">
-	<Navbar />
 	<router-view />
 </div>
 </template>
 
 <script>
-import Navbar from '@/components/Navbar.vue'
 
-export default {
-	components: {
-		Navbar
-	}
-}
 </script>
 
 <style>
-body, #app {
+body,
+#app {
 	margin: 0;
+	padding: 10px;
 }
 </style>
