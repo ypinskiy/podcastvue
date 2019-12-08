@@ -3,7 +3,7 @@
 	<div v-if="!loading" class="mx-auto flex flex-col justify-between text-center border border-solid border-gray-500 mb-8 p-2 rounded-lg bg-white shadow-lg channel-info">
 		<img class="channel-hero" :src="podcastInfo.channel.image" />
 		<span class="text-xl font-bold channel-title">{{podcastInfo.channel.title}}</span>
-		<span class="mb-4 channel-desc">{{podcastInfo.channel.description}}</span>
+		<span class="mb-4 channel-desc" v-html="podcastInfo.channel.description"></span>
 		<a class="text-blue-500 hover:underline mb-2 text-sm channel-link" :href="podcastInfo.channel.link">{{podcastInfo.channel.link}}</a>
 		<a class="text-blue-500 hover:underline mb-2 text-sm channel-email" :href="`mailto:${podcastInfo.channel.email}`">{{podcastInfo.channel.email}}</a>
 		<span class="text-sm text-gray-500 channel-copyright">&copy; {{podcastInfo.channel.copyright}}</span>
@@ -12,7 +12,7 @@
 		<div v-for="episode in podcastInfo.episodes" :id="`episode-${episode.guid}`" :key="episode.guid" class="flex flex-col justify-between text-center border border-solid border-gray-500 mb-8 p-2 rounded-lg bg-white shadow-lg episode">
 			<img class="episode-image" :src="episode.cover ? episode.cover : podcastInfo.channel.image" />
 			<a class="text-blue-500 hover:underline text-xl font-bold episode-title" v-html="episode.title" :href="episode.link"></a>
-			<span class="text-sm episode-date">{{episode.date}}</span>
+			<span class="text-sm episode-date">{{new Date(episode.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</span>
 			<span class="mb-1 text-sm episode-dur">{{ConvertDuration(episode.duration)}}</span>
 			<span class="pt-2 pb-2 mb-2 border-t border-b border-gray-500 episode-desc" v-html="episode.description"></span>
 			<button class="shadow-md rounded-lg p-2 my-0 mx-auto text-white bg-blue-500 hover:bg-blue-700 episode-listen-btn" @click.prevent="ListenToEpisode(episode)">Listen To Episode</button>
@@ -50,7 +50,7 @@ export default {
 					.classList.add( "bg-white" );
 			}
 			playing.value = true;
-			currentlyPlaying.value = episode.media.url;
+			currentlyPlaying.value = episode.media ? episode.media.url : episode.link;
 			currentlyPlayingID.value = episode.guid;
 			context.root.$nextTick( function () {
 				document.getElementById( `episode-${currentlyPlayingID.value}` )
